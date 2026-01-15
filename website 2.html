@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CapturedDream – Share Your Moments</title>
+  <style>
+    body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#333}
+    header{background:#1e293b;color:#fff;padding:15px;text-align:center}
+    .container{max-width:900px;margin:auto;padding:20px}
+    .card{background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);margin-bottom:20px}
+    input,button{width:100%;padding:10px;margin:8px 0;border-radius:5px;border:1px solid #ccc}
+    button{background:#1e293b;color:#fff;border:none;cursor:pointer}
+    button:hover{background:#334155}
+    .hidden{display:none}
+    .profile{text-align:center}
+    .profile img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #1e293b}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+    .gallery img{width:100%;border-radius:6px}
+    footer{background:#1e293b;color:#fff;text-align:center;padding:10px}
+  </style>
+</head>
+<body><header>
+  <h1>CapturedDream</h1>
+  <p>Upload and share your pictures</p>
+</header><div class="container">  <!-- SIGN UP -->  <div id="signup" class="card">
+    <h2>Sign Up</h2>
+    <input id="su_username" placeholder="Username" />
+    <input id="su_email" type="email" placeholder="Email" />
+    <input id="su_password" type="password" placeholder="Password" />
+    <button onclick="signUp()">Create Account</button>
+    <p>Already have an account? <a href="#" onclick="showLogin()">Sign In</a></p>
+  </div>  <!-- LOGIN -->  <div id="login" class="card hidden">
+    <h2>Sign In</h2>
+    <input id="li_username" placeholder="Username" />
+    <input id="li_password" type="password" placeholder="Password" />
+    <button onclick="signIn()">Login</button>
+  </div>  <!-- PROFILE + UPLOAD -->  <div id="app" class="hidden">
+    <div class="card profile">
+      <h2 id="welcome"></h2>
+      <img id="profilePic" src="https://via.placeholder.com/120" />
+      <input type="file" accept="image/*" onchange="changeProfile(event)" />
+    </div><div class="card">
+  <h3>Upload a Picture</h3>
+  <input type="file" accept="image/*" onchange="uploadPost(event)" />
+</div>
+
+<div class="card">
+  <h3>Gallery</h3>
+  <div id="gallery" class="gallery"></div>
+</div>
+
+<button onclick="logout()">Logout</button>
+
+  </div></div><footer>
+  <p>© 2026 CapturedDream</p>
+</footer><script>
+  let currentUser = null;
+
+  function signUp(){
+    const u = su_username.value;
+    const e = su_email.value;
+    const p = su_password.value;
+    if(!u||!e||!p){alert('Fill all fields');return}
+    localStorage.setItem('user_'+u, JSON.stringify({username:u,email:e,password:p,posts:[]}));
+    alert('Account created. Please login.');
+    showLogin();
+  }
+
+  function signIn(){
+    const u = li_username.value;
+    const p = li_password.value;
+    const data = JSON.parse(localStorage.getItem('user_'+u));
+    if(!data || data.password!==p){alert('Invalid login');return}
+    currentUser = data;
+    startApp();
+  }
+
+  function startApp(){
+    signup.classList.add('hidden');
+    login.classList.add('hidden');
+    app.classList.remove('hidden');
+    welcome.innerText = 'Welcome, ' + currentUser.username;
+    loadGallery();
+  }
+
+  function showLogin(){
+    signup.classList.add('hidden');
+    login.classList.remove('hidden');
+  }
+
+  function changeProfile(e){
+    const file = e.target.files[0];
+    if(file) profilePic.src = URL.createObjectURL(file);
+  }
+
+  function uploadPost(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const url = URL.createObjectURL(file);
+    currentUser.posts.push(url);
+    localStorage.setItem('user_'+currentUser.username, JSON.stringify(currentUser));
+    loadGallery();
+  }
+
+  function loadGallery(){
+    gallery.innerHTML='';
+    currentUser.posts.forEach(img=>{
+      const i=document.createElement('img');
+      i.src=img;gallery.appendChild(i);
+    })
+  }
+
+  function logout(){
+    location.reload();
+  }
+</script></body>
+</html>
